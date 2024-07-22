@@ -1,0 +1,78 @@
+{% extends "_base.html" %}
+{% load humanize %}
+{% load custom_filters %}
+
+{% block head %}
+    {% load static %}
+    <title>Chat Bot</title>
+    <!-- Include Showdown from a CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/showdown/dist/showdown.min.js"></script>
+{% endblock head %}
+
+
+{% block main %}
+<div 
+        class="flex flex-col px-8 h-full justify-center gap-4 w-[40%]
+        ">
+            <h1 class="text-2xl sm:text-4xl bg-gradient-to-r from-purple-300 to-cyan-200 bg-clip-text font-display tracking-tight text-transparent">
+            <!-- <h1 class="text-2xl sm:text-4xl bg-gradient-to-r from-red-400 to-pink2 bg-clip-text font-display tracking-tight text-transparent"> -->
+                A fine Tuned Chat Generative AI Model
+                {% if file_name %}
+                for {{ file_name }}
+                {% endif %}
+            </h1>
+            <p class="my-4 text-gray-300 drop-shadow-2xl">
+                
+            </p>
+            {% comment %} {% if not file_path %} {% endcomment %}
+            {% comment %} {% endif %} {% endcomment %}
+        </div>
+<div class="flex flex-col relative full-height max-w-[800px] m-auto">
+    <div id="messages_container" class="flex-1 flex flex-col gap-2 p-2 overflow-auto">
+    {% for message in message_list %}
+        <div class="p-4 px-8 bg-brand-dark rounded-xl">
+            <div class="flex gap-2 text-xs text-gray-400 border-b border-brand-dark-xl pb-2">
+                <span class="font-medium">
+                    {{message.sender}}
+
+                </span>
+                <span class="font-light">
+                    {{ message.date|naturaltime }}
+                </span>
+            </div>
+            <p class="msg mt-4" id="msg_{{message.id}}">
+                {{message.content|format_text|safe}}
+            </p>
+            {% if message.sender == "BOT" %}
+            <script>
+                {% comment %} document.addEventListener('DOMContentLoaded', function() {
+
+                msg = document.getElementById('msg_{{message.id}}');
+                const response = msg.innerHTML;
+
+                const converter = new showdown.Converter();
+                const html = converter.makeHtml(response);
+                msg.innerHTML = html; {% endcomment %}
+                });
+            </script>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    <form method="post" class="w-full flex justify-between gap-2 items-end">
+        {% csrf_token %}
+        <textarea name="content" id="content" rows="2" class="regular-input"></textarea>
+        <button class="btn-round" name="add_message">
+            <i class="fa-solid fa-paper-plane"></i>
+        </button>
+    </form>
+</div>
+
+<script>
+    var objDiv = document.getElementById("messages_container");
+    objDiv.scrollTop = objDiv.scrollHeight;
+</script>
+
+
+
+{% endblock main %}
